@@ -12,12 +12,16 @@ import { fonts } from '../themes/fonts';
 import { colors } from '../themes/colors';
 import PopUp from '../components/PopUp';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useGlobalState } from '../store/GlobalState';
 
 type LoginScreenProps = {
     navigation: any
 }
 
 export default function LoginScreen({navigation} : LoginScreenProps) {
+
+    const { state, dispatch } = useGlobalState();
+
     return (
         <SafeAreaView style={{flex: 1}}>
             <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
@@ -29,7 +33,7 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                         <Text style={styles.title}>ANSON'S PLAYGROUND & CAFE</Text>
                         <Text style={styles.subtitle}>Fitness & Gym Zone</Text>
 
-                        <Text style={styles.form_label}>Coach Account Key</Text>
+                        <Text style={styles.form_label}>{state.theme}</Text>
                         <TextInput style={styles.form_input} placeholder="Enter your Coach Account Key" />
 
                         <Text style={styles.form_label}>Coach Account Password</Text>
