@@ -26,7 +26,8 @@ export const metrics = {
     'm4': 16,
     'm5': 24,
     'm6': 32,
-    
+    'nav-bar-space': 80,
+
 
     // border radius
     'r0': 0,
