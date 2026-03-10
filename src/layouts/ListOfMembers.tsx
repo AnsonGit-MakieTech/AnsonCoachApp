@@ -62,12 +62,7 @@ export default function ListOfMembers({} : ListOfMembersProps) {
                 
                 <MemberListCard />
                 <MemberListCard />
-                <MemberListCard />
-                <MemberListCard />
-                <MemberListCard />
-                <MemberListCard />
-                <MemberListCard />
-                <MemberListCard />
+                <MemberListCard /> 
 
             </View>
 

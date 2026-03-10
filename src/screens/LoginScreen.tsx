@@ -43,7 +43,7 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                 </GlassCard>
 
                 
-                <PopUp />
+                {/* <PopUp /> */}
 
             </KeyboardAvoidingView>
         </SafeAreaView>
