@@ -14,12 +14,17 @@ import { Image } from 'expo-image';
 import SVGSessionCount from '../svgs/SVGSessionCount';
 import SVGVisitMember from '../svgs/SVGVisitMember';
 import MemberListCard from '../components/MemberListCard';
+import type { MemberType } from '../types/MemberType';
 
 type ListOfMembersProps = {
+    members : MemberType[],
+    setSearch : (search : string) => void,
 }
 
 
-export default function ListOfMembers({} : ListOfMembersProps) {
+export default function ListOfMembers({
+    members, setSearch
+} : ListOfMembersProps) {
 
     return (
         <View style={styles.container}>
@@ -29,7 +34,7 @@ export default function ListOfMembers({} : ListOfMembersProps) {
                     <Text style={styles.tag_text}>Members</Text>
                 </View>
                 <View style={styles.search_container}>
-                    <TextInput style={styles.search_input} placeholder='Search Members' />
+                    <TextInput style={styles.search_input} placeholder='Search Members' onChangeText={(text) => setSearch(text)} />
                 </View>
             </View>
             <View style={styles.list_container}>
@@ -59,10 +64,14 @@ export default function ListOfMembers({} : ListOfMembersProps) {
                         </View>
                     </View>
                 </View> */}
-                
+                {
+                    members.map((member)=>{
+                        return <MemberListCard member={member} key={member.id} />
+                    })
+                }
+                {/* <MemberListCard />
                 <MemberListCard />
-                <MemberListCard />
-                <MemberListCard /> 
+                <MemberListCard />  */}
 
             </View>
 

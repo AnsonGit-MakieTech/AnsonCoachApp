@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { 
     View, StyleSheet, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
@@ -13,33 +13,84 @@ import SVGMemberTag from '../svgs/SVGMemberTag';
 import { Image } from 'expo-image';
 import SVGSessionCount from '../svgs/SVGSessionCount';
 import SVGVisitMember from '../svgs/SVGVisitMember';
+import type { MemberType } from '../types/MemberType';
+import { getRequestUrl } from '../services/apiUrl';
 
 type MemberListCardProps = {
+    member : MemberType,
 }
 
-export default function MemberListCard({} : MemberListCardProps) {
+export default function MemberListCard({
+    member,
+} : MemberListCardProps) {
+    
+    const [picture , setPicture] = useState<string | null>(null);
+    const [sessionCount , setSessionCount] = useState(0);
+    const [logTime , setLogTime] = useState<string>("--:-- --");
+
+    useEffect(()=>{
+        async function initilize(){
+            let url = await getRequestUrl();
+            // remove slash at the end
+            url = url.slice(0, -1);
+            const picture_url = `${url}${member.picture}`;
+            setPicture(picture_url);
+
+            if (member.session.session_is_expired){
+                setSessionCount(0);
+            } else if (member.session.session_count > 0){
+                setSessionCount(member.session.session_count);
+            }
+
+            // Convert the timestamp to a readable format "10:00 AM"
+            if (member.logs.timestamp){ 
+                setLogTime(formatTime(member.logs.timestamp));
+            }
+
+        }
+
+        initilize();
+
+    },[member]);
+
+    function formatTime(timestamp: string) {
+        const date = new Date(timestamp);
+
+        return date.toLocaleTimeString([], {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
     return (
         <View style={styles.member_card}>
             <TouchableOpacity style={styles.member_visit_button}>
                 <SVGVisitMember />
             </TouchableOpacity>
             <Image 
-                source={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQozDm3lXaUSWh_sh2IXSqtTReQWg3Q_9YS8g&s"} 
+                source={picture ?? ""}
                 style={styles.member_image}
             />
             <View style={styles.member_info_container}>
-                <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'>Josh Mon Nava faf as fasf sdf fafs dsdasfsda sdf fds </Text>
+                <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'>{member.fullname}</Text>
                 <Text style={styles.member_position} numberOfLines={1}>
-                    <Text style={{fontFamily: fonts.bold}}>10:00 AM  </Text>
-                    <Text style={{fontFamily: fonts.light}}>( Inside )</Text>
+                    <Text style={{fontFamily: fonts.bold}}>{logTime}  </Text>
+                    <Text style={{fontFamily: fonts.light}}>( {member.logs.activity } )</Text>
                 </Text>
                 <View style={styles.session_count_container}>
                     <ScrollView horizontal contentContainerStyle={styles.scroll_content_style}>
+                        
+                        {
+                            Array.from({length: sessionCount}, (_, i)=>{
+                                return <SVGSessionCount key={i} />
+                            })
+                        }
+                        {/* <SVGSessionCount />
                         <SVGSessionCount />
                         <SVGSessionCount />
                         <SVGSessionCount />
-                        <SVGSessionCount />
-                        <SVGSessionCount /> 
+                        <SVGSessionCount />  */}
                     </ScrollView>
                 </View>
             </View>

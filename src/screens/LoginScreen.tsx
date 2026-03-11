@@ -54,12 +54,14 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
         // Clear the session token
         clearSessionToken();
 
+
         return () => {
             // console.log('Screen Left');
         };
 
         }, [])
     );
+
 
     
     async function LoginAccountEvent( account_key : string , password : string){
@@ -83,8 +85,9 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                 title: 'Successfully Login',
                 message: data.message,
                 type: 'success',
-            }])
-            saveSessionToken(data.session_key);
+            }]);
+            console.log(data.data.session_key);
+            await saveSessionToken(data.data.session_key);
             navigation.navigate('Home');
         } else {
             // Add error result to the error array
