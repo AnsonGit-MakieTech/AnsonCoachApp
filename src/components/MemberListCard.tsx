@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
         flex: 1,
         boxSizing: 'border-box',
         rowGap: metrics.m1,
+        height: "100%",
     },
     member_name : {
         fontSize: metrics.body1,

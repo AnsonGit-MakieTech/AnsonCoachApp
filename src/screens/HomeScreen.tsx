@@ -20,6 +20,8 @@ import ListOfMembers from '../layouts/ListOfMembers';
 import { getSessionToken } from '../storage/secureStorage';
 import { getRequestUrl } from '../services/apiUrl';
 import type { MemberType } from '../types/MemberType';
+import { useGlobalState } from '../store/GlobalState';
+import MemberRecords from '../layouts/MemberRecords';
 
 type HomeScreenProps = {
     navigation: any
@@ -38,6 +40,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
     const [members, setMembers] = useState<MemberType[]>([]);
     const [popUps, setPopUps] = useState<PopUpItemType[]>([]);
     const [search, setSearch] = useState(''); 
+    const { state, dispatch } = useGlobalState();
 
     useEffect(()=>{
         if (popUps.length == 0) return;
@@ -59,6 +62,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
     },[search]);
  
     async function initialize() {
+        dispatch({ type: 'SET_TAB', payload: 'members' });
         const session_key = await getSessionToken();
         console.log("Session:", session_key);
 
@@ -88,6 +92,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
 
             return () => { 
                 setSessionKey(null);
+                dispatch({ type: 'SET_TAB', payload: 'members' });
             };
         }, [])
     );
@@ -129,7 +134,6 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
 
     }
  
-
     const onRefresh = async () => {
         if (refreshing) return; // prevent multiple refreshes
         setRefreshing(true);
@@ -147,17 +151,33 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                 <Image style={styles.background_image} source={images.background} />
 
 
-                <ScrollView 
+                { state.tab === 'members' && <ScrollView
                     style={styles.scroll_view} 
-                    contentContainerStyle={styles.scroll_view_container} 
+                    contentContainerStyle={styles.scroll_view_container}  
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
                 >
-                    <ListOfMembers members={members} setSearch={setSearch} />
+                    {/* {
+                        state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
+                    } */}
+                    {/* <ListOfMembers members={members} setSearch={setSearch} /> */}
+                    <MemberRecords />
 
-                </ScrollView>
+                </ScrollView>}
                 {/* <ListOfMembers /> */}
+                { state.tab !== 'members' && <ScrollView
+                    style={styles.scroll_view} 
+                    contentContainerStyle={styles.scroll_view_container}  
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                >
+                    {
+                        state.tab === 'record' && <MemberRecords />
+                    }
+
+                </ScrollView>}
 
             
 

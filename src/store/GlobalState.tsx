@@ -5,17 +5,20 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 interface State {
 	user: string | null;
 	theme: 'light' | 'dark';
+	tab : 'members' | 'record' | 'remark'
 }
 
 // 2. Define action types
 type Action =
 	| { type: 'SET_USER'; payload: string }
-	| { type: 'TOGGLE_THEME' };
+	| { type: 'TOGGLE_THEME' }
+	| { type: 'SET_TAB'; payload: 'members' | 'record' | 'remark' };
 
 // 3. Initial state
 const initialState: State = {
 	user: null,
 	theme: 'light',
+	tab : 'members'
 };
 
 // 4. Reducer function
@@ -25,6 +28,8 @@ function reducer(state: State, action: Action): State {
 			return { ...state, user: action.payload };
 		case 'TOGGLE_THEME':
 			return { ...state, theme: state.theme === 'light' ? 'dark' : 'light' };
+		case 'SET_TAB':
+			return { ...state, tab: action.payload };
 		default:
 			return state;
 	}
