@@ -3,7 +3,7 @@ export const colors = {
     'secondary': '#DC7B31',
 
     'text': '#000000',
-    'overlay': '#313131',
+    'overlay': '#383838',
     'background': '#FFFFFF',
 
     'error': '#B21A1A',

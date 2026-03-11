@@ -22,6 +22,7 @@ import { getRequestUrl } from '../services/apiUrl';
 import type { MemberType } from '../types/MemberType';
 import { useGlobalState } from '../store/GlobalState';
 import MemberRecords from '../layouts/MemberRecords';
+import MemberRemarks from '../layouts/MemberRemarks';
 
 type HomeScreenProps = {
     navigation: any
@@ -162,7 +163,8 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                         state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
                     } */}
                     {/* <ListOfMembers members={members} setSearch={setSearch} /> */}
-                    <MemberRecords />
+                    {/* <MemberRecords /> */}
+                    <MemberRemarks />
 
                 </ScrollView>}
                 {/* <ListOfMembers /> */}
@@ -175,6 +177,9 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                 >
                     {
                         state.tab === 'record' && <MemberRecords />
+                    }
+                    {
+                        state.tab === 'remark' && <MemberRemarks/>
                     }
 
                 </ScrollView>}
