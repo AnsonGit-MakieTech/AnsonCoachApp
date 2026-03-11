@@ -9,14 +9,21 @@ import { fonts } from '../themes/fonts';
 import { colors } from '../themes/colors';
 
 
-type PopUpProps = {
+type ItemType = {
+    title: string,
+    message: string,
+    type: 'error' | 'success' | 'neutral',
 }
 
-export default function PopUp({} : PopUpProps) {
+type PopUpProps = {
+    records : ItemType[]
+}
+
+export default function PopUp({records} : PopUpProps) {
     return (
         <View style={styles.container}>
 
-            <View style={[styles.card, styles.error]}>
+            {/* <View style={[styles.card, styles.error]}>
                 <Text style={styles.title}>Something Wrong!</Text>
                 <Text style={styles.subtitle}>Before you submit coach activity, Please provide a remarks about the activity.</Text>
             </View>
@@ -27,7 +34,14 @@ export default function PopUp({} : PopUpProps) {
             <View style={[styles.card, styles.neutral]}>
                 <Text style={styles.title}>Page is reloaded</Text>
                 <Text style={styles.subtitle}>The page has been reloaded.</Text>
-            </View>
+            </View> */}
+
+            {records.map((item, index)=>{
+                return <View style={[styles.card, styles[item.type]]} key={index}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.subtitle}>{item.message}</Text>
+                </View>
+            })}
 
         </View>
     )

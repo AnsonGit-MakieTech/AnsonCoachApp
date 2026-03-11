@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, {  useEffect, useState, useCallback } from 'react';
 import { 
     View, Text, StyleSheet, Image, 
     TouchableOpacity, TextInput, KeyboardAvoidingView , 
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { images } from '../themes/images';
 import { BlurView } from 'expo-blur';
 import { metrics } from '../themes/metrics';
@@ -12,15 +12,91 @@ import { fonts } from '../themes/fonts';
 import { colors } from '../themes/colors';
 import PopUp from '../components/PopUp';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useGlobalState } from '../store/GlobalState';
+import { loginAccount } from '../services/loginAccount';
+import { saveSessionToken, clearSessionToken } from '../storage/secureStorage';
 
 type LoginScreenProps = {
     navigation: any
 }
 
+type ErrorItemType = {
+    title: string,
+    message: string,
+    type: 'error' | 'success' | 'neutral',
+}
+
 export default function LoginScreen({navigation} : LoginScreenProps) {
 
-    const { state, dispatch } = useGlobalState();
+    const [isLoading, setIsLoading] = useState(false); 
+    const [ account_key, setAccountKey ] = useState('');
+    const [ password, setPassword ] = useState('');
+    const [ error, setError ] = useState<ErrorItemType[]>([]);
+
+    useEffect(()=>{
+        if (error.length == 0) return;
+        const timer = setTimeout(()=>{
+            setError((prev)=>prev.slice(1));
+        }, 5000);
+        return ()=>{
+            clearTimeout(timer);
+        }
+    },[error]);
+
+    useFocusEffect(
+        useCallback(() => {
+        // console.log('Screen Entered');
+
+        // your logic here
+        // fetch data
+        // refresh UI
+        // start animations
+        
+        // Clear the session token
+        clearSessionToken();
+
+        return () => {
+            // console.log('Screen Left');
+        };
+
+        }, [])
+    );
+
+    
+    async function LoginAccountEvent( account_key : string , password : string){
+        if (isLoading) return;
+        setIsLoading(true);
+        if (account_key === '' || password === ''){
+            return;
+        }
+        
+        setError((prev)=>[...prev, {
+            title : 'Logging in...',
+            message : 'Please wait while we are logging you in...',
+            type : 'neutral',
+        }]);
+
+        const [data , isSuccess] = await loginAccount(account_key , password);
+
+
+        if (isSuccess){
+            setError( (prev)=>[...prev , {
+                title: 'Successfully Login',
+                message: data.message,
+                type: 'success',
+            }])
+            saveSessionToken(data.session_key);
+            navigation.navigate('Home');
+        } else {
+            // Add error result to the error array
+            setError( (prev)=>[...prev , {
+                title: 'Something went wrong',
+                message: data.message ?? 'Please check your internet connection and try again',
+                type: 'error',
+            }]);
+        }
+        setIsLoading(false);
+    }
+
 
     return (
         <SafeAreaView style={{flex: 1}}>
@@ -33,13 +109,13 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                         <Text style={styles.title}>ANSON'S PLAYGROUND & CAFE</Text>
                         <Text style={styles.subtitle}>Fitness & Gym Zone</Text>
 
-                        <Text style={styles.form_label}>{state.theme}</Text>
-                        <TextInput style={styles.form_input} placeholder="Enter your Coach Account Key" />
+                        <Text style={styles.form_label}>Coach Account Key</Text>
+                        <TextInput style={styles.form_input} placeholder="Enter your Coach Account Key" onChangeText={(text) => setAccountKey(text)} />
 
                         <Text style={styles.form_label}>Coach Account Password</Text>
-                        <TextInput style={styles.form_input} placeholder="Enter your Password" />
+                        <TextInput style={styles.form_input} placeholder="Enter your Password" onChangeText={(text) => setPassword(text)} />
 
-                        <TouchableOpacity style={styles.button}>
+                        <TouchableOpacity style={styles.button} onPress={() => LoginAccountEvent(account_key , password)}>
                             <Text style={styles.button_text}>OPEN NOTEBOOK</Text>
                         </TouchableOpacity>
 
@@ -47,7 +123,7 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                 </GlassCard>
 
                 
-                {/* <PopUp /> */}
+                <PopUp records={error} />
 
             </KeyboardAvoidingView>
         </SafeAreaView>

@@ -1,16 +1,16 @@
 // src/storage/secureStore.ts
 import * as SecureStore from 'expo-secure-store';
 
-export async function saveToken(token: string) {
+export async function saveSessionToken(token: string) {
     await SecureStore.setItemAsync('session_key', token, {
         keychainService: 'myAppKeychain',
     });
 }
 
-export async function getToken() {
-  return await SecureStore.getItemAsync('authToken');
+export async function getSessionToken() {
+    return await SecureStore.getItemAsync('session_key');
 }
 
-export async function deleteToken() {
-  await SecureStore.deleteItemAsync('authToken');
+export async function clearSessionToken() {
+    await SecureStore.deleteItemAsync('session_key');
 }
