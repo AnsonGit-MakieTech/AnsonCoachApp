@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 import { 
     View, StyleSheet, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
@@ -14,6 +14,8 @@ import { Image } from 'expo-image';
 import SVGDumbellIcon from '../svgs/SVGDumbellIcon';
 import SVGSessionCount from '../svgs/SVGSessionCount';
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useGlobalState } from '../store/GlobalState';
+import { getRequestUrl } from '../services/apiUrl';
 
 
 type MemberRecordsProps = {
@@ -24,19 +26,29 @@ export default function MemberRecords({} : MemberRecordsProps) {
 
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+    const { state, dispatch } = useGlobalState();
+ 
 
     function onChange(event: any, selectedDate?: Date) {
-        setShowPicker(false);
-
+        setShowPicker(false); 
         if (selectedDate) {
             setDate(selectedDate);
         }
+    }
+
+    function goBack(){
+        dispatch({ type: 'SET_MEMBER', payload: null });
+        dispatch({ type: 'SET_TAB', payload: 'members' });
+    }
+
+    function submitRecords(){ 
+        dispatch({ type: 'SET_TAB', payload: 'remark' });
     }
     
     return (
         <View style={styles.container}>
             <View style={styles.action_container}>
-                <TouchableOpacity style={[styles.tags_container]} onPress={() => setShowPicker(true)}>
+                <TouchableOpacity style={[styles.tags_container]} onPress={goBack}>
                     <SVGBackIcon/>
                     <Text style={styles.tag_text}>Go Back</Text>
                 </TouchableOpacity> 
@@ -45,28 +57,30 @@ export default function MemberRecords({} : MemberRecordsProps) {
 
                 <View style={styles.member_card}>
                     <Image 
-                        source={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQozDm3lXaUSWh_sh2IXSqtTReQWg3Q_9YS8g&s"} 
+                        source={state.picture ?? ""}
                         style={styles.member_image}
                     />
 
                     <View style={styles.member_info_container}>
-                        <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'>Josh Mon Nava faf as fasf sdf fafs dsdasfsda sdf fds </Text>
+                        <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'>
+                            { state.member ? state.member.fullname : "------------------------------"}
+                        </Text>
                         <Text style={styles.member_position} numberOfLines={1}>
-                            <Text style={{fontFamily: fonts.bold}}>10:00 AM  </Text>
-                            <Text style={{fontFamily: fonts.light}}>( Inside )</Text>
+                            <Text style={{fontFamily: fonts.bold}}> { state.logTime }  </Text>
+                            <Text style={{fontFamily: fonts.light}}>( { state.member ? state.member.logs.activity : "" } )</Text>
                         </Text> 
                         <View style={styles.session_count_container}>
                             <ScrollView horizontal contentContainerStyle={styles.scroll_content_style}>
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount /> 
+                                {
+                                    Array.from({length: state.sessionCount}, (_, i)=>{
+                                        return <SVGSessionCount key={i} />
+                                    })
+                                }
                             </ScrollView>
                         </View>
                     </View>
 
-                    <TouchableOpacity style={styles.member_visit_button}>
+                    <TouchableOpacity style={styles.member_visit_button} onPress={submitRecords}>
                         <SVGDumbellIcon />
                     </TouchableOpacity>
 
@@ -75,7 +89,7 @@ export default function MemberRecords({} : MemberRecordsProps) {
                 <View style={styles.session_description_container}>
                     <Text style={styles.session_description_container_title}>Session Plan</Text>
                     <Text style={styles.session_description_container_description}>
-                        {"One more thing: \n if fetchMembers() depends on sessionKey state, then calling it right after setSessionKey(session_key) may still use the old state value. In that case, pass session_key directly into fetchMembers(session_key) instead of waiting for state."}
+                        { state.member ? state.member.session.session_description : "" }
                     </Text>
                 </View>
 

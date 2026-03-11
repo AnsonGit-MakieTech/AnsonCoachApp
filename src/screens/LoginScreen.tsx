@@ -184,9 +184,10 @@ const styles = StyleSheet.create({
         marginTop: metrics.m4,
     },
     form_input : {
-        width: '80%', 
+        width: '90%', 
         backgroundColor: colors.background,
         fontFamily: fonts.regular,
+        fontSize: metrics.body1,
         textAlign: 'center',
         color: colors.text,
         borderRadius: metrics.r4,

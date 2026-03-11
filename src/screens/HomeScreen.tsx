@@ -73,8 +73,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
         }
 
         setSessionKey(session_key);
-
-        console.log("Fetching members");
+ 
 
         try {
             await fetchMembers(undefined, session_key);
@@ -93,7 +92,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
 
             return () => { 
                 setSessionKey(null);
-                dispatch({ type: 'SET_TAB', payload: 'members' });
+                dispatch({ type: 'CLEAR' });
             };
         }, [])
     );
@@ -101,8 +100,8 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
 
     async function fetchMembers( search? : string , alternateKey? : string) {
         // TODO: Fetch the members from the cloud service
-        if (sessionKey === null) {
-            if (alternateKey === null) return;
+        if (sessionKey === undefined || sessionKey === null) {
+            if (alternateKey === undefined || alternateKey === null) return;
         };
 
         const selectedKey = alternateKey ?? sessionKey;
@@ -113,8 +112,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
         try{
             const response = await fetch( url );
             if (response.ok){    
-                const data : MemberType[] = await response.json();
-                console.log(data);
+                const data : MemberType[] = await response.json(); 
                 setMembers(data);
             } else {
                 const data = await response.json();
@@ -159,21 +157,18 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                     }
                 >
-                    {/* {
+                    {
                         state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
-                    } */}
+                    }
                     {/* <ListOfMembers members={members} setSearch={setSearch} /> */}
                     {/* <MemberRecords /> */}
-                    <MemberRemarks />
+                    {/* <MemberRemarks /> */}
 
                 </ScrollView>}
                 {/* <ListOfMembers /> */}
                 { state.tab !== 'members' && <ScrollView
                     style={styles.scroll_view} 
-                    contentContainerStyle={styles.scroll_view_container}  
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
+                    contentContainerStyle={styles.scroll_view_container}   
                 >
                     {
                         state.tab === 'record' && <MemberRecords />

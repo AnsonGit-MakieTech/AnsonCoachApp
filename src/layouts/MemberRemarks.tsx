@@ -12,6 +12,7 @@ import GlassCard from '../components/GlassCard';
 import SVGBackIcon from '../svgs/SVGBackIcon';
 import { Image } from 'expo-image';
 import SVGSessionCount from '../svgs/SVGSessionCount';
+import { useGlobalState } from '../store/GlobalState';
 
 
 type MemberRemarksProps = {
@@ -21,11 +22,16 @@ type MemberRemarksProps = {
 export default function MemberRemarks({} : MemberRemarksProps) {
 
     const [ remarks, setRemarks ] = useState('');
+    const { dispatch } = useGlobalState();
+    
+    function goBack(){ 
+        dispatch({ type: 'SET_TAB', payload: 'record' });
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.action_container}>
-                <TouchableOpacity style={[styles.tags_container]} >
+                <TouchableOpacity style={[styles.tags_container]} onPress={goBack}>
                     <SVGBackIcon/>
                     <Text style={styles.tag_text}>Go Back</Text>
                 </TouchableOpacity> 
