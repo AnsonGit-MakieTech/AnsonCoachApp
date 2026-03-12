@@ -16,6 +16,7 @@ import SVGVisitMember from '../svgs/SVGVisitMember';
 import type { MemberType } from '../types/MemberType';
 import { getRequestUrl } from '../services/apiUrl';
 import { useGlobalState } from '../store/GlobalState';
+import { formatTime } from '../utils/utils';
 
 type MemberListCardProps = {
     member : MemberType,
@@ -28,7 +29,7 @@ export default function MemberListCard({
     const [picture , setPicture] = useState<string | null>(null);
     const [sessionCount , setSessionCount] = useState(0);
     const [logTime , setLogTime] = useState<string>("--:-- --");
-    const { dispatch } = useGlobalState();
+    const { state , dispatch } = useGlobalState();
 
     useEffect(()=>{
         async function initilize(){
@@ -55,25 +56,16 @@ export default function MemberListCard({
 
     },[member]);
 
-    function formatTime(timestamp: string) {
-        const date = new Date(timestamp);
-
-        return date.toLocaleTimeString([], {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-    }
+ 
 
     async function visitMember(){ 
         const requestUrl = await getRequestUrl(); 
-
         dispatch({ type: 'SET_REQUEST_URL', payload: requestUrl });
         dispatch({ type: 'SET_PICTURE', payload: picture });
         dispatch({ type: 'SET_SESSION_COUNT', payload: sessionCount });
         dispatch({ type: 'SET_LOG_TIME', payload: logTime });
         dispatch({ type: 'SET_MEMBER', payload: member });
-        dispatch({ type: 'SET_TAB', payload: 'record' });
+        dispatch({ type: 'SET_TAB', payload: 'record' }); 
     }
 
     return (

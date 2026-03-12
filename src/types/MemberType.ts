@@ -8,6 +8,7 @@ export type MemberType = {
         activity : string,
     },
     session : {
+        id : number,
         paid_at : string,
         paid_amount : number,
         session_price : number,

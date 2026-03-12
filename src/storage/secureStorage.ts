@@ -2,7 +2,9 @@
 import * as SecureStore from 'expo-secure-store';
 
 const SESSION_KEY = 'session_key';
+const ACCOUNT_ID = 'account_id';
 const KEYCHAIN = 'myAppKeychain';
+const KEYCHAIN_ACCOUNT_ID = 'myAppKeychainAccountID';
 
 export async function saveSessionToken(token: string) {
     await SecureStore.setItemAsync(SESSION_KEY, token, {
@@ -21,3 +23,4 @@ export async function clearSessionToken() {
         keychainService: KEYCHAIN,
     });
 }
+ 

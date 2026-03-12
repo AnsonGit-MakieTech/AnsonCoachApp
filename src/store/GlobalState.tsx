@@ -12,6 +12,7 @@ interface State {
 	picture : string | null,
 	sessionCount : number,
 	logTime : string,
+	accountId : number,
 }
 
 // 2. Define action types
@@ -24,6 +25,7 @@ type Action =
 	| { type: 'SET_PICTURE'; payload: string | null }
 	| { type: 'SET_SESSION_COUNT'; payload: number }
 	| { type: 'SET_LOG_TIME'; payload: string }
+	| { type: 'SET_ACCOUNT_ID'; payload: number }
 	| { type: 'CLEAR' };
 
 // 3. Initial state
@@ -36,6 +38,7 @@ const initialState: State = {
 	picture : null,
 	sessionCount : 0,
 	logTime : "--:-- --",
+	accountId : 0,
 };
 
 // 4. Reducer function
@@ -49,8 +52,18 @@ function reducer(state: State, action: Action): State {
 			return { ...state, tab: action.payload };
 		case 'SET_MEMBER':
 			return { ...state, member: action.payload };
+		case 'SET_REQUEST_URL':
+			return { ...state, requestUrl: action.payload };
+		case 'SET_PICTURE':
+			return { ...state, picture: action.payload };
+		case 'SET_SESSION_COUNT':
+			return { ...state, sessionCount: action.payload };
+		case 'SET_LOG_TIME':
+			return { ...state, logTime: action.payload };
 		case 'CLEAR':
 			return initialState;
+		case 'SET_ACCOUNT_ID':
+			return { ...state, accountId: action.payload };
 		default:
 			return state;
 	}

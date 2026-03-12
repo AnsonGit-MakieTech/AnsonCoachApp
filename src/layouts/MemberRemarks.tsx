@@ -13,19 +13,57 @@ import SVGBackIcon from '../svgs/SVGBackIcon';
 import { Image } from 'expo-image';
 import SVGSessionCount from '../svgs/SVGSessionCount';
 import { useGlobalState } from '../store/GlobalState';
+import { submitRecords } from '../services/submitRemarks';
+import { getSessionToken } from '../storage/secureStorage';
+ 
 
-
-type MemberRemarksProps = {
-
+type PopUpItemType = {
+    title: string,
+    message: string,
+    type: 'error' | 'success' | 'neutral',
 }
 
-export default function MemberRemarks({} : MemberRemarksProps) {
+type MemberRemarksProps = {
+    setPopUps : React.Dispatch<React.SetStateAction<PopUpItemType[]>>,
+}
+
+export default function MemberRemarks({
+    setPopUps,
+} : MemberRemarksProps) {
 
     const [ remarks, setRemarks ] = useState('');
-    const { dispatch } = useGlobalState();
-    
+    const { state, dispatch } = useGlobalState();
+    const [ isLoading , setIsLoading ] = useState(false);
+
     function goBack(){ 
         dispatch({ type: 'SET_TAB', payload: 'record' });
+    }
+
+    async function submitSessionRemarks(){
+        if (isLoading) return;
+        if (remarks === '') return;
+
+        setPopUps((prev)=>[...prev, {
+            title: 'Submitting your Remarks',
+            message: 'Please wait while we are submitting your remarks...',
+            type: 'neutral',
+        }]);    
+        setIsLoading(true);
+        const session_key = await getSessionToken();
+        const [ data , isSuccess ] = await submitRecords({
+            remarks: remarks,
+            sessionKey: session_key ?? "",
+            memberId: state.member?.id ?? 0,
+            coachId: state.accountId ?? 0,
+            sessionId: state.member?.session.id ?? 0,
+        });
+        setPopUps((prev)=>[...prev , {
+            title: data.title,
+            message: data.message,
+            type: data.type,
+        }]);
+        setRemarks('');
+        setIsLoading(false);
     }
 
     return (
@@ -39,23 +77,25 @@ export default function MemberRemarks({} : MemberRemarksProps) {
             <View style={styles.list_container}>
                 <View style={styles.member_card}>
                     <Image 
-                        source={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQozDm3lXaUSWh_sh2IXSqtTReQWg3Q_9YS8g&s"} 
+                        source={state.picture ?? ""}
                         style={styles.member_image}
                     />
 
                     <View style={styles.member_info_container}>
-                        <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'>Josh Mon Nava faf as fasf sdf fafs dsdasfsda sdf fds </Text>
+                        <Text style={styles.member_name} numberOfLines={1} ellipsizeMode='tail'> 
+                            { state.member ? state.member.fullname : "------------------------------"}
+                        </Text>
                         <Text style={styles.member_position} numberOfLines={1}>
-                            <Text style={{fontFamily: fonts.bold}}>10:00 AM  </Text>
-                            <Text style={{fontFamily: fonts.light}}>( Inside )</Text>
+                            <Text style={{fontFamily: fonts.bold}}> { state.logTime }  </Text>
+                            <Text style={{fontFamily: fonts.light}}>( { state.member ? state.member.logs.activity : "" } )</Text>
                         </Text> 
                         <View style={styles.session_count_container}>
                             <ScrollView horizontal contentContainerStyle={styles.scroll_content_style}>
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount />
-                                <SVGSessionCount /> 
+                                {
+                                    Array.from({length: state.sessionCount}, (_, i)=>{
+                                        return <SVGSessionCount key={i} />
+                                    })
+                                }
                             </ScrollView>
                         </View>
                     </View>
@@ -65,8 +105,8 @@ export default function MemberRemarks({} : MemberRemarksProps) {
 
                 <View style={styles.session_description_container}>
                     <Text style={styles.session_description_container_title}>Session Plan</Text>
-                    <Text style={styles.session_description_container_description}>
-                        {"One more thing: \n if fetchMembers() depends on sessionKey state, then calling it right after setSessionKey(session_key) may still use the old state value. In that case, pass session_key directly into fetchMembers(session_key) instead of waiting for state."}
+                    <Text style={styles.session_description_container_description}> 
+                        { state.member ? state.member.session.session_description : "" }
                     </Text>
                 </View>
 
@@ -84,7 +124,7 @@ export default function MemberRemarks({} : MemberRemarksProps) {
                     By clicking the button, You verify that you are done the coach session with this gym member.
                 </Text>}
                 
-                { remarks !== '' && <TouchableOpacity style={styles.button} onPress={() => console.log('Submit Remarks')}>
+                { remarks !== '' && <TouchableOpacity style={styles.button} onPress={submitSessionRemarks}>
                     <Text style={styles.button_text}>Submit Remarks</Text>
                 </TouchableOpacity>}
 

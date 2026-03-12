@@ -17,7 +17,7 @@ import PopUp from '../components/PopUp';
 import { SafeAreaView } from "react-native-safe-area-context";
 import NavBar from '../components/NavBar';
 import ListOfMembers from '../layouts/ListOfMembers'; 
-import { getSessionToken } from '../storage/secureStorage';
+import { clearSessionToken, getSessionToken } from '../storage/secureStorage';
 import { getRequestUrl } from '../services/apiUrl';
 import type { MemberType } from '../types/MemberType';
 import { useGlobalState } from '../store/GlobalState';
@@ -91,7 +91,8 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
             initialize();
 
             return () => { 
-                setSessionKey(null);
+                setSessionKey(null); 
+                clearSessionToken();
                 dispatch({ type: 'CLEAR' });
             };
         }, [])
@@ -174,7 +175,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                         state.tab === 'record' && <MemberRecords />
                     }
                     {
-                        state.tab === 'remark' && <MemberRemarks/>
+                        state.tab === 'remark' && <MemberRemarks setPopUps={setPopUps}/>
                     }
 
                 </ScrollView>}

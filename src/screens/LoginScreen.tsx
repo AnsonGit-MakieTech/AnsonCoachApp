@@ -13,7 +13,8 @@ import { colors } from '../themes/colors';
 import PopUp from '../components/PopUp';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { loginAccount } from '../services/loginAccount';
-import { saveSessionToken, clearSessionToken } from '../storage/secureStorage';
+import { saveSessionToken, clearSessionToken} from '../storage/secureStorage';
+import { useGlobalState } from '../store/GlobalState';
 
 type LoginScreenProps = {
     navigation: any
@@ -31,6 +32,7 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
     const [ account_key, setAccountKey ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ error, setError ] = useState<ErrorItemType[]>([]);
+    const { dispatch } = useGlobalState();
 
     useEffect(()=>{
         if (error.length == 0) return;
@@ -87,7 +89,8 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                 type: 'success',
             }]);
             console.log(data.data.session_key);
-            await saveSessionToken(data.data.session_key);
+            await saveSessionToken(data.data.session_key); 
+            dispatch({ type: 'SET_ACCOUNT_ID', payload: data.data.account_id });
             navigation.navigate('Home');
         } else {
             // Add error result to the error array

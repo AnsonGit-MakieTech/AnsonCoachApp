@@ -42,6 +42,7 @@ export default function MemberRecords({} : MemberRecordsProps) {
     }
 
     function submitRecords(){ 
+        console.log("State:", state);
         dispatch({ type: 'SET_TAB', payload: 'remark' });
     }
     
@@ -79,10 +80,12 @@ export default function MemberRecords({} : MemberRecordsProps) {
                             </ScrollView>
                         </View>
                     </View>
-
-                    <TouchableOpacity style={styles.member_visit_button} onPress={submitRecords}>
-                        <SVGDumbellIcon />
-                    </TouchableOpacity>
+                    {
+                        
+                        state && state.member && state.member.session && !state.member.session.session_is_expired && <TouchableOpacity style={styles.member_visit_button} onPress={submitRecords}>
+                            <SVGDumbellIcon />
+                        </TouchableOpacity>
+                    }
 
                 </View>
 
