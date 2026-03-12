@@ -289,6 +289,8 @@ const styles = StyleSheet.create({
         color: colors.text,
         lineHeight: metrics.h6,
         paddingBottom: metrics.m2,
+        textAlign: 'left',
+        width: "90%",
     },
     hr : {
         width: "95%",
