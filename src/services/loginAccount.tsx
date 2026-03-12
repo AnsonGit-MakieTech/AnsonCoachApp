@@ -19,8 +19,9 @@ export async function loginAccount( account_key : string , password : string): P
             method: 'POST',
             body: formData,
         });
-         
+        console.log("Response:", response);
         const data = await response.json(); 
+        console.log("Data:", data);
         if (response.ok) {
             return [data , true];
         } else {
@@ -28,6 +29,7 @@ export async function loginAccount( account_key : string , password : string): P
         }
 
     } catch(error){ 
+        console.log("Error:", error);
         return [{
             'title': 'Something went wrong',
             'message': 'Please check your internet connection and try again',
