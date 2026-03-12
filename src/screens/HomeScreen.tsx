@@ -160,10 +160,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                 >
                     {
                         state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
-                    }
-                    {/* <ListOfMembers members={members} setSearch={setSearch} /> */}
-                    {/* <MemberRecords /> */}
-                    {/* <MemberRemarks /> */}
+                    } 
 
                 </ScrollView>}
                 {/* <ListOfMembers /> */}
@@ -172,7 +169,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
                     contentContainerStyle={styles.scroll_view_container}   
                 >
                     {
-                        state.tab === 'record' && <MemberRecords />
+                        state.tab === 'record' && <MemberRecords setPopUps={setPopUps}/>
                     }
                     {
                         state.tab === 'remark' && <MemberRemarks setPopUps={setPopUps}/>

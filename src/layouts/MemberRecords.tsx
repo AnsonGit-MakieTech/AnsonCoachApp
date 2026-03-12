@@ -16,23 +16,93 @@ import SVGSessionCount from '../svgs/SVGSessionCount';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useGlobalState } from '../store/GlobalState';
 import { getRequestUrl } from '../services/apiUrl';
+import { getSessionToken } from '../storage/secureStorage';
+import { getSessionsRecords, SessionRecordType } from '../services/getSessions';
+
+
+type PopUpItemType = {
+    title: string,
+    message: string,
+    type: 'error' | 'success' | 'neutral',
+}
 
 
 type MemberRecordsProps = {
+    setPopUps : React.Dispatch<React.SetStateAction<PopUpItemType[]>>,
 
-}
+} 
+export default function MemberRecords({
+    setPopUps
+} : MemberRecordsProps) {
 
-export default function MemberRecords({} : MemberRecordsProps) {
-
-    const [date, setDate] = useState(new Date());
-    const [showPicker, setShowPicker] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [startDateString, setStartDateString] = useState("MM/DD/YYYY");
+    const [endDate, setEndDate] = useState(new Date());
+    const [endDateString, setEndDateString] = useState("MM/DD/YYYY");
+    const [showPickerStart, setShowPickerStart] = useState(false);
+    const [showPickerEnd, setShowPickerEnd] = useState(false); 
     const { state, dispatch } = useGlobalState();
- 
+    const [ isloading, setIsLoading ] = useState(false);
+    const [ sessionRecords , setSessionRecords ] = useState<SessionRecordType[]>([]);
+    
+    useEffect(()=>{
+        if (isloading) return;
+        startDate && setStartDateString(startDate.toLocaleDateString());
+        endDate && setEndDateString(endDate.toLocaleDateString());
+        if (!startDate || !endDate) return;
+        if (startDate > endDate) return;
+        if (state.member == null) return; 
 
-    function onChange(event: any, selectedDate?: Date) {
-        setShowPicker(false); 
+        // setStartDateString(startDate.toLocaleDateString());
+        // setEndDateString(endDate.toLocaleDateString());
+
+        viewSubmitRecords();
+
+
+    },[startDate, endDate , state.member]);
+    
+    async function viewSubmitRecords(){
+        setIsLoading(true);
+         
+
+        const sessionToken = await getSessionToken();
+        const [ result , success ] = await getSessionsRecords({
+            sessionKey: sessionToken ?? "",
+            memberId: state.member?.id ?? 0,
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+        });
+ 
+        if (success){  
+            // Check the type of result
+            if (result instanceof Array) {
+                setSessionRecords(result);
+            }
+        } else {
+            setSessionRecords([]);
+        }
+
+        setIsLoading(false);
+    }
+
+    function formatDate(date: Date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function onChangeStart(event: any, selectedDate?: Date) {
+        setShowPickerStart(false); 
         if (selectedDate) {
-            setDate(selectedDate);
+            setStartDate(selectedDate);
+        }
+    }
+    function onChangeEnd(event: any, selectedDate?: Date) {
+        setShowPickerEnd(false); 
+        if (selectedDate) {
+            setEndDate(selectedDate);
         }
     }
 
@@ -41,10 +111,12 @@ export default function MemberRecords({} : MemberRecordsProps) {
         dispatch({ type: 'SET_TAB', payload: 'members' });
     }
 
-    function submitRecords(){ 
-        console.log("State:", state);
+    function visitSubmitRecords(){  
         dispatch({ type: 'SET_TAB', payload: 'remark' });
     }
+
+
+
     
     return (
         <View style={styles.container}>
@@ -82,7 +154,7 @@ export default function MemberRecords({} : MemberRecordsProps) {
                     </View>
                     {
                         
-                        state && state.member && state.member.session && !state.member.session.session_is_expired && <TouchableOpacity style={styles.member_visit_button} onPress={submitRecords}>
+                        state && state.member && state.member.session && !state.member.session.session_is_expired && <TouchableOpacity style={styles.member_visit_button} onPress={visitSubmitRecords}>
                             <SVGDumbellIcon />
                         </TouchableOpacity>
                     }
@@ -95,10 +167,39 @@ export default function MemberRecords({} : MemberRecordsProps) {
                         { state.member ? state.member.session.session_description : "" }
                     </Text>
                 </View>
+                
+                <View style={styles.dates_container}>
+                    <TouchableOpacity style={styles.dates_button} onPress={() => setShowPickerStart(true)}>
+                        <Text style={styles.dates_button_text}>{startDateString}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity  style={styles.dates_button} onPress={() => setShowPickerEnd(true)}>
+                        <Text style={styles.dates_button_text}>{endDateString}</Text>
+                    </TouchableOpacity>
+                </View>
 
                 <View style={styles.session_records_container}>
                     <Text style={styles.session_records_container_title}>Session Records</Text>
-                    <View style={styles.session_record}>
+                    { sessionRecords && sessionRecords.map((record , index)=>(<View style={styles.session_record} key={index}>
+                        <Text style={styles.session_record_title} numberOfLines={1} ellipsizeMode='tail'>
+                            <Text> {record.timestamp ? new Date(record.timestamp).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric"
+                                    }) : "--/--/--"}  </Text>
+                            <Text style={[styles.pending , styles[record.activity_status] , {fontFamily: fonts.bold }]}>
+                                ( {record.activity_status.toUpperCase()} )
+                            </Text>
+                        </Text>
+                        <Text style={styles.session_record_title} numberOfLines={1} ellipsizeMode='tail'>
+                            {`Name : ${record.session_name}`}
+                        </Text>
+                        <Text style={styles.session_record_title} numberOfLines={1} ellipsizeMode='tail'>
+                            {`Coach : ${record.coach}`}
+                        </Text>
+                        <View style={styles.session_record_hr}></View>
+                            
+                    </View>)) }
+                    {/* <View style={styles.session_record}>
                         <Text style={styles.session_record_title} numberOfLines={1} ellipsizeMode='tail'>
                             <Text>December 1, 2024  </Text>
                             <Text style={[styles.pending , {fontFamily: fonts.bold }]}>( PENDING )</Text>
@@ -139,16 +240,24 @@ export default function MemberRecords({} : MemberRecordsProps) {
                         </Text>
                         <View style={styles.session_record_hr}></View>
                             
-                    </View>
+                    </View> */}
                 </View>
 
             </View>
-            {showPicker && (
+            {showPickerStart && (
                 <DateTimePicker
-                value={date}
+                value={startDate}
                 mode="date"
                 display="spinner"
-                onChange={onChange}
+                onChange={onChangeStart}
+                />
+            )}
+            {showPickerEnd && (
+                <DateTimePicker
+                value={endDate}
+                mode="date"
+                display="spinner"
+                onChange={onChangeEnd}
                 />
             )}
         </View> 
@@ -202,8 +311,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingTop: metrics.m3,
-        rowGap: metrics.s2,
+        paddingTop: metrics.m3, 
         paddingBottom: metrics.m3,
         borderTopRightRadius: metrics.r3,
         borderBottomLeftRadius: metrics.r3,
@@ -314,6 +422,33 @@ const styles = StyleSheet.create({
         lineHeight: metrics.h6,
         paddingBottom: metrics.m2,
     },
+    dates_container : {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: metrics.m3,
+        width: "90%",
+    },
+    dates_button : {
+        width: "45%",
+        height: 35,
+        backgroundColor: "rgba(49,49,49,0.8)",
+        borderTopEndRadius: metrics.r4,
+        borderTopStartRadius: metrics.r4,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        columnGap: metrics.m2,
+    },
+    dates_button_text : {
+        fontSize: metrics.body1,
+        fontFamily: fonts.bold,
+        color: colors.background,
+        lineHeight: metrics.body1,
+    },
+    
     session_records_container : {
         width: "90%",
         height: "auto",
@@ -325,7 +460,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: metrics.m3, 
         paddingBottom: metrics.m3,
-        borderTopRightRadius: metrics.r3,
         borderBottomLeftRadius: metrics.r3,
         borderBottomRightRadius: metrics.r3,
     },
