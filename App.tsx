@@ -33,7 +33,7 @@ export default function App() {
     });
 
     if (!fontsLoaded) {
-        return <Text>Loading fonts...</Text>;
+        return <Text></Text>;
     }
 
 

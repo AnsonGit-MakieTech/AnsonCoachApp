@@ -10,6 +10,7 @@ export type MemberType = {
     session : {
         id : number,
         paid_at : string,
+        session_name : string,
         paid_amount : number,
         session_price : number,
         session_count : number,

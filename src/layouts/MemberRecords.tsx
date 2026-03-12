@@ -162,7 +162,9 @@ export default function MemberRecords({
                 </View>
 
                 <View style={styles.session_description_container}>
-                    <Text style={styles.session_description_container_title}>Session Plan</Text>
+                    <Text style={styles.session_description_container_title}>
+                        { state.member ? state.member.session.session_name : "No Session Plan" }
+                    </Text>
                     <Text style={styles.session_description_container_description}>
                         { state.member ? state.member.session.session_description : "" }
                     </Text>
