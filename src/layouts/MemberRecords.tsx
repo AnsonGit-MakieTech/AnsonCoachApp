@@ -1,9 +1,10 @@
-import React, { useState, ReactNode, useEffect } from 'react';
+import React, { useState, ReactNode, useEffect, useRef } from 'react';
 import { 
     View, StyleSheet, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
     StyleProp, ViewStyle, Text,
     ScrollView,
+    Animated,
  } from 'react-native';
 import { metrics } from '../themes/metrics';
 import { fonts } from '../themes/fonts';
@@ -44,6 +45,7 @@ export default function MemberRecords({
     const { state, dispatch } = useGlobalState();
     const [ isloading, setIsLoading ] = useState(false);
     const [ sessionRecords , setSessionRecords ] = useState<SessionRecordType[]>([]);
+    const sessionRecordOpacity = useRef(new Animated.Value(0)).current;
     
     useEffect(()=>{
         if (isloading) return;
@@ -60,12 +62,21 @@ export default function MemberRecords({
 
 
     },[startDate, endDate , state.member]);
+
+    useEffect(()=>{
+        Animated.timing(sessionRecordOpacity , {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start(); 
+    },[]);
     
     async function viewSubmitRecords(){
         setIsLoading(true);
          
 
         const sessionToken = await getSessionToken();
+        sessionRecordOpacity.setValue(0);
         const [ result , success ] = await getSessionsRecords({
             sessionKey: sessionToken ?? "",
             memberId: state.member?.id ?? 0,
@@ -80,7 +91,12 @@ export default function MemberRecords({
             }
         } else {
             setSessionRecords([]);
-        }
+        } 
+        Animated.timing(sessionRecordOpacity , {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start(); 
 
         setIsLoading(false);
     }
@@ -179,7 +195,7 @@ export default function MemberRecords({
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.session_records_container}>
+                <Animated.View style={[styles.session_records_container, {opacity : sessionRecordOpacity}]}>
                     <Text style={styles.session_records_container_title}>Session Records</Text>
                     { sessionRecords && sessionRecords.map((record , index)=>(<View style={styles.session_record} key={index}>
                         <Text style={styles.session_record_title} numberOfLines={1} ellipsizeMode='tail'>
@@ -243,7 +259,7 @@ export default function MemberRecords({
                         <View style={styles.session_record_hr}></View>
                             
                     </View> */}
-                </View>
+                </Animated.View>
 
             </View>
             {showPickerStart && (
@@ -415,7 +431,7 @@ const styles = StyleSheet.create({
         fontSize: metrics.body1,
         fontFamily: fonts.bold,
         color: colors.text,
-        lineHeight: metrics.body1,
+        lineHeight: metrics.h5,
     },
     session_description_container_description : {
         fontSize: metrics.body1,
@@ -487,7 +503,7 @@ const styles = StyleSheet.create({
         fontSize: metrics.body2,
         fontFamily: fonts.light,
         color: colors.text,
-        lineHeight: metrics.body1,
+        lineHeight: metrics.h6,
     },
     pending : {
         color : colors.overlay,

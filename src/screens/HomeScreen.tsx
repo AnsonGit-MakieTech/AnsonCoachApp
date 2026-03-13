@@ -4,7 +4,8 @@ import {
     TouchableOpacity, TextInput, KeyboardAvoidingView , 
     ScrollView, 
     Dimensions,
-    RefreshControl
+    RefreshControl,
+    Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { images } from '../themes/images';
@@ -145,42 +146,47 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
     };
     
     return (
-        <SafeAreaView style={{flex: 1, overflow: 'scroll'}}>
-            <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+        <SafeAreaView style={{flex: 1}} edges={['top']}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior={
+                Platform.OS === 'ios' ? 'padding' : undefined
+            }> 
+                <View style={styles.container}>
+                    
+                    <Image style={styles.background_image} source={images.background} />
 
-                <Image style={styles.background_image} source={images.background} />
 
+                    { state.tab === 'members' && <ScrollView
+                        style={styles.scroll_view} 
+                        contentContainerStyle={styles.scroll_view_container}  
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
+                    >
+                        {
+                            state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
+                        } 
 
-                { state.tab === 'members' && <ScrollView
-                    style={styles.scroll_view} 
-                    contentContainerStyle={styles.scroll_view_container}  
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                >
-                    {
-                        state.tab === 'members' && <ListOfMembers members={members} setSearch={setSearch} />
-                    } 
+                    </ScrollView>}
+                    {/* <ListOfMembers /> */}
+                    { state.tab !== 'members' && <ScrollView
+                        style={styles.scroll_view} 
+                        contentContainerStyle={styles.scroll_view_container}   
+                    >
+                        {
+                            state.tab === 'record' && <MemberRecords setPopUps={setPopUps}/>
+                        }
+                        {
+                            state.tab === 'remark' && <MemberRemarks setPopUps={setPopUps}/>
+                        }
 
-                </ScrollView>}
-                {/* <ListOfMembers /> */}
-                { state.tab !== 'members' && <ScrollView
-                    style={styles.scroll_view} 
-                    contentContainerStyle={styles.scroll_view_container}   
-                >
-                    {
-                        state.tab === 'record' && <MemberRecords setPopUps={setPopUps}/>
-                    }
-                    {
-                        state.tab === 'remark' && <MemberRemarks setPopUps={setPopUps}/>
-                    }
+                    </ScrollView>}
 
-                </ScrollView>}
-
-            
 
                 <NavBar />
                 <PopUp records={popUps}/>
+
+                
+                </View> 
 
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -194,7 +200,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        position: 'relative', 
+        position: 'relative',  
     },
     background_image : {
         position: 'absolute',

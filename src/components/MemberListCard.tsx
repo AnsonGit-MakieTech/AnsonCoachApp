@@ -1,9 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { 
     View, StyleSheet, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
     StyleProp, ViewStyle, Text,
     ScrollView,
+    Animated,
  } from 'react-native';
 import { metrics } from '../themes/metrics';
 import { fonts } from '../themes/fonts';
@@ -31,8 +32,11 @@ export default function MemberListCard({
     const [logTime , setLogTime] = useState<string>("--:-- --");
     const { state , dispatch } = useGlobalState();
 
+    const opacity = useRef(new Animated.Value(0)).current;
+
     useEffect(()=>{
         async function initilize(){
+            opacity.setValue(0);
             let url = await getRequestUrl();
             // remove slash at the end
             url = url.slice(0, -1);
@@ -49,6 +53,11 @@ export default function MemberListCard({
             if (member.logs.timestamp){ 
                 setLogTime(formatTime(member.logs.timestamp));
             }
+            Animated.timing(opacity , {
+                toValue: 1,
+                duration: 1000,
+                useNativeDriver: true,
+            }).start();
 
         }
 
@@ -69,7 +78,7 @@ export default function MemberListCard({
     }
 
     return (
-        <View style={styles.member_card}>
+        <Animated.View style={[styles.member_card, { opacity }]}>
             <TouchableOpacity style={styles.member_visit_button} onPress={visitMember}>
                 <SVGVisitMember />
             </TouchableOpacity>
@@ -99,7 +108,7 @@ export default function MemberListCard({
                     </ScrollView>
                 </View>
             </View>
-        </View>
+        </Animated.View>
     )
 }
 

@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
         fontSize: metrics.body1,
         fontFamily: fonts.bold,
         color: colors.text,
-        lineHeight: metrics.body1,
+        lineHeight: metrics.h5,
     },
     session_description_container_description : {
         fontSize: metrics.body1,

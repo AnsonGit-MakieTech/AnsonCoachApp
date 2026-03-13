@@ -1,12 +1,14 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { 
     View, StyleSheet, Image, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
-    StyleProp, ViewStyle, Text
+    StyleProp, ViewStyle, Text,
+    Animated
  } from 'react-native';
 import { metrics } from '../themes/metrics';
 import { fonts } from '../themes/fonts';
 import { colors } from '../themes/colors';
+import PopUpBar from './PopUpBar';
 
 
 type ItemType = {
@@ -20,6 +22,8 @@ type PopUpProps = {
 }
 
 export default function PopUp({records} : PopUpProps) {
+
+    
     return (
         <View style={styles.container}>
 
@@ -36,11 +40,15 @@ export default function PopUp({records} : PopUpProps) {
                 <Text style={styles.subtitle}>The page has been reloaded.</Text>
             </View> */}
 
-            {records.map((item, index)=>{
-                return <View style={[styles.card, styles[item.type]]} key={index}>
+            {/* {records.map((item, index)=>{
+                return <Animated.View style={[styles.card, styles[item.type], {opacity}]} key={index}>
                     <Text style={styles.title}>{item.title}</Text>
                     <Text style={styles.subtitle}>{item.message}</Text>
-                </View>
+                </Animated.View>
+            })} */}
+            
+            {records.map((item, index)=>{
+                return <PopUpBar record={item} key={index}/>
             })}
 
         </View>

@@ -1,7 +1,8 @@
-import React, {  useEffect, useState, useCallback } from 'react';
+import React, {  useEffect, useState, useCallback, useRef } from 'react';
 import { 
     View, Text, StyleSheet, Image, 
-    TouchableOpacity, TextInput, KeyboardAvoidingView , 
+    TouchableOpacity, TextInput, KeyboardAvoidingView, 
+    Animated, 
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { images } from '../themes/images';
@@ -33,6 +34,8 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
     const [ password, setPassword ] = useState('');
     const [ error, setError ] = useState<ErrorItemType[]>([]);
     const { dispatch } = useGlobalState();
+    const opacity = useRef(new Animated.Value(0)).current;
+
 
     useEffect(()=>{
         if (error.length == 0) return;
@@ -53,8 +56,16 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
         // refresh UI
         // start animations
         
+        Animated.timing(opacity , {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+        }).start();
+        
+
         // Clear the session token
         clearSessionToken();
+        
 
 
         return () => {
@@ -105,13 +116,13 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
 
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1}} edges={['top']}>
             <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
                 <Image style={styles.background_image} source={images.background} />
 
 
                 <GlassCard prop_style={styles.prop_style}>
-                    <View style={styles.form_container}>
+                    <Animated.View style={[styles.form_container , {opacity}]}>
                         <Text style={styles.title}>ANSON'S PLAYGROUND & CAFE</Text>
                         <Text style={styles.subtitle}>Fitness & Gym Zone</Text>
 
@@ -125,7 +136,7 @@ export default function LoginScreen({navigation} : LoginScreenProps) {
                             <Text style={styles.button_text}>OPEN NOTEBOOK</Text>
                         </TouchableOpacity>
 
-                    </View>
+                    </Animated.View>
                 </GlassCard>
 
                 
