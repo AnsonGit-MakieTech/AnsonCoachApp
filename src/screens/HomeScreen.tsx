@@ -116,6 +116,7 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
             if (response.ok){    
                 const data : MemberType[] = await response.json(); 
                 setMembers(data);
+                console.log("Members:", data);
             } else {
                 const data = await response.json();
                 setPopUps((prev)=>[...prev, {
@@ -147,9 +148,11 @@ export default function HomeScreen({navigation} : HomeScreenProps) {
     
     return (
         <SafeAreaView style={{flex: 1}} edges={['top']}>
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={
-                Platform.OS === 'ios' ? 'padding' : undefined
-            }> 
+            <KeyboardAvoidingView style={{ flex: 1 }} 
+            behavior={
+                Platform.OS === 'ios' ? 'padding' : 'height'
+            }
+            > 
                 <View style={styles.container}>
                     
                     <Image style={styles.background_image} source={images.background} />

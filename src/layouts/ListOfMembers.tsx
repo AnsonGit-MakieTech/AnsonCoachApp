@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 import { 
     View, StyleSheet, TouchableOpacity, 
     TextInput, KeyboardAvoidingView,
@@ -25,6 +25,7 @@ type ListOfMembersProps = {
 export default function ListOfMembers({
     members, setSearch
 } : ListOfMembersProps) {
+ 
 
     return (
         <View style={styles.container}>
